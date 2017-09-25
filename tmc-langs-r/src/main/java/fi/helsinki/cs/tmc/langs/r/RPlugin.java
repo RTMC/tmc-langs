@@ -91,10 +91,22 @@ public class RPlugin extends AbstractLanguagePlugin{
         return null;
     }
 
-    @Override
-    public Optional<ExerciseDesc> scanExercise(Path path, String exerciseName) {
-        // TO DO
-        return Optional.absent();
+    private String[] getTestCommand() {
+        String[] rscr = new String[] {"Rscript", "-e"};
+        String[] command;
+        if (SystemUtils.IS_OS_WINDOWS) {
+            command = new String[] {"\"library('tmcRtestrunner');runTestsWithDefault(TRUE)\""};
+        } else {
+            command = new String[] {"\"library(tmcRtestrunner);runTests(\"$PWD\", print=TRUE)\""};
+        }
+        return ArrayUtils.addAll(rscr, command);
+    }
+    
+    private String[] getAvailablePointsCommand() {
+        String[] rscr = new String[] {"Rscript", "-e"};
+        String[] command = new String[] {"\"library(tmcRtestrunner);"
+                                         + "getAvailablePoints(\"$PWD\")\""};
+        return ArrayUtils.addAll(rscr, command);
     }
 
     @Override
