@@ -83,6 +83,29 @@ public class RPlugin extends AbstractLanguagePlugin{
     }
 
     @Override
+    public String getPluginName() {
+        return "r";
+    }
+
+    @Override
+    public Optional<ExerciseDesc> scanExercise(Path path, String exerciseName) {
+        ProcessRunner runner = new ProcessRunner(this.getAvailablePointsCommand(), path);
+        try {
+            runner.call();
+        } catch (Exception e) {
+            System.out.println(e);
+            log.error(CANNOT_SCAN_EXERCISE_MESSAGE, e);
+        }
+        try {
+            ImmutableList<TestDesc> testDescs = new RExerciseDescParser(path).parse();
+            return Optional.of(new ExerciseDesc(exerciseName, testDescs));
+        } catch (IOException e) {
+            log.error(CANNOT_PARSE_EXERCISE_DESCRIPTION_MESSAGE, e);
+        }
+        return Optional.absent();
+    }
+
+    @Override
     public RunResult runTests(Path path) {
         // TO DO
         return null;
@@ -94,21 +117,32 @@ public class RPlugin extends AbstractLanguagePlugin{
         return null;
     }
 
-    private String[] getTestCommand() {
-        String[] rscr = new String[] {"Rscript", "-e"};
+    public String[] getTestCommand() {
+        
+        String[] rscr;
         String[] command;
         if (SystemUtils.IS_OS_WINDOWS) {
+            rscr = new String[] {"Rscript", "-e"};
             command = new String[] {"\"library('tmcRtestrunner');runTestsWithDefault(TRUE)\""};
         } else {
-            command = new String[] {"\"library(tmcRtestrunner);runTests(\"$PWD\", print=TRUE)\""};
+            rscr = new String[] {"bash"};
+            command = new String[] {Paths.get("").toAbsolutePath().toString() + "/runTests.sh"};
         }
         return ArrayUtils.addAll(rscr, command);
     }
     
-    private String[] getAvailablePointsCommand() {
-        String[] rscr = new String[] {"Rscript", "-e"};
-        String[] command = new String[] {"\"library(tmcRtestrunner);"
-                                         + "getAvailablePoints(\"$PWD\")\""};
+    public String[] getAvailablePointsCommand() {
+        String[] rscr;
+        String[] command;
+        if (SystemUtils.IS_OS_WINDOWS) {
+            rscr = new String[] {"Rscript", "-e"};
+            command = new String[] {"\"library(tmcRtestrunner);"
+                                    + "getAvailablePoints(\"$PWD\")\""};
+        } else {
+            rscr = new String[] {"bash"};
+            command = new String[] {Paths.get("").toAbsolutePath().toString() 
+                    + "/getAvailablePoints.sh"};
+        }
         return ArrayUtils.addAll(rscr, command);
     }
 
