@@ -137,7 +137,7 @@ public class RPlugin extends AbstractLanguagePlugin{
         if (SystemUtils.IS_OS_WINDOWS) {
             rscr = new String[] {"Rscript", "-e"};
             command = new String[] {"\"library(tmcRtestrunner);"
-                                    + "getAvailablePoints(\"$PWD\")\""};
+                                    + "get_available_points(\"$PWD\")\""};
         } else {
             rscr = new String[] {"bash"};
             command = new String[] {Paths.get("").toAbsolutePath().toString() 
