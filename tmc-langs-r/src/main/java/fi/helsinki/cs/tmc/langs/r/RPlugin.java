@@ -116,25 +116,19 @@ public class RPlugin extends AbstractLanguagePlugin{
     }
 
     public String[] getTestCommand() {
-        String[] command = new String[] {"Rscript"};
-        String[] args;
         if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[] {"-e", "\"library('tmcRtestrunner');run_tests()\""};
+            return new String[] {"Rscript", "-e", "\"library('tmcRtestrunner');run_tests()\""};
         } else {
-            args = new String[] {"-e", "library(tmcRtestrunner);run_tests()"};
+            return new String[] {"Rscript", "-e", "library(tmcRtestrunner);run_tests()"};
         }
-        return ArrayUtils.addAll(command, args);
     }
 
     public String[] getAvailablePointsCommand() {
-        String[] command = new String[] {"Rscript"};
-        String[] args;
         if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[] {"-e", "\"library('tmcRtestrunner');run_available_points()\""};
+            return new String[] {"Rscript", "-e", "\"library('tmcRtestrunner');run_available_points()\""};
         } else {
-            args = new String[] {"-e", "library(tmcRtestrunner);run_available_points()"};
+            return new String[] {"Rscript", "-e", "library('tmcRtestrunner');run_available_points()"};
         }
-        return ArrayUtils.addAll(command, args);
     }
 
     @Override

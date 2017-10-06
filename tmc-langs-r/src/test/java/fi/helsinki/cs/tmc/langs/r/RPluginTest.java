@@ -55,28 +55,24 @@ public class RPluginTest {
 
     @Test
     public void testGetTestCommand() {
-        String[] command = new String[] {"Rscript"};
-        String[] args;
 
+        String[] expectedCommand;
         if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[] {"-e", "\"library('tmcRtestrunner');run_tests()\""};
+            expectedCommand = new String[] {"Rscript", "-e", "\"library('tmcRtestrunner');run_tests()\""};
         } else {
-            args = new String[] {"-e", "library(tmcRtestrunner);run_tests()"};
+            expectedCommand = new String[] {"Rscript", "-e", "library(tmcRtestrunner);run_tests()"};
         }
-        String[] expectedCommand = ArrayUtils.addAll(command, args);
         Assert.assertArrayEquals(expectedCommand,plugin.getTestCommand());
     }
 
     @Test
     public void testGetAvailablePointsCommand() {
-        String[] command = new String[] {"Rscript"};
-        String[] args;
+        String[] expectedCommand;
         if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[] {"-e", "\"library('tmcRtestrunner');run_available_points()\""};
+            expectedCommand = new String[] {"Rscript", "-e", "\"library('tmcRtestrunner');run_available_points()\""};
         } else {
-            args = new String[] {"-e", "library(tmcRtestrunner);run_available_points()"};
+            expectedCommand = new String[] {"Rscript", "-e", "library('tmcRtestrunner');run_available_points()"};
         }
-        String[] expectedCommand = ArrayUtils.addAll(command, args);
         Assert.assertArrayEquals(expectedCommand, plugin.getAvailablePointsCommand());
     }
 
