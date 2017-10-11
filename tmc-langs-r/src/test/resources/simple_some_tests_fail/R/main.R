@@ -10,3 +10,7 @@ add <- function(a, b) {
   return(a + b)
 }
 
+ret_false <- function() {
+  return(FALSE)
+}
+
