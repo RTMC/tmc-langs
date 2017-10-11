@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class RStudentFilePolicyTest {
 
     private Path projectPath;
@@ -47,15 +46,5 @@ public class RStudentFilePolicyTest {
         assertFalse(studentFiles.contains(
                 "test" + File.separatorChar + "testthat"
                         + File.separatorChar + "testArithmetics.R"));
-    }
-
-    @Test
-    public void testResultRInTmcDirectoryIsNotAStudentFile() throws IOException {
-        List<String> studentFiles = new ArrayList<>();
-
-        TestUtils.collectPaths(projectPath, studentFiles, studentFilePolicy);
-
-        assertEquals(2, studentFiles.size());
-        assertFalse(studentFiles.contains("tmc" + File.separatorChar + "result.R"));
     }
 }

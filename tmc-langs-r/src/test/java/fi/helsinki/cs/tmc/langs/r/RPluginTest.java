@@ -107,7 +107,7 @@ public class RPluginTest {
     }
 
     @Test
-    public void testRunTests() {
+    public void runTestsRunResultCorrectForProject1() {
         Path testDir = TestUtils.getPath(getClass(), "project1");
         RunResult runRes = plugin.runTests(testDir);
         ImmutableList<TestResult> re = runRes.testResults;
@@ -141,7 +141,7 @@ public class RPluginTest {
     }
 
     @Test
-    public void runTestsCreatesJsonWithCorrectStatus() {
+    public void runTestsCreatesRunResultWithCorrectStatusWhenSomeTestsFail() {
         Path testDir = TestUtils.getPath(getClass(), "project1");
         RunResult res = plugin.runTests(testDir);
 
@@ -149,23 +149,19 @@ public class RPluginTest {
     }
 
     @Test
-    public void runTestsWorksWithErronousSourceCode() {
+    public void runTestsCreatesRunResultWithCorrectStatusWhenSourceCodeHasError() {
         Path testDir = TestUtils.getPath(getClass(), "simple_source_code_error");
         RunResult res = plugin.runTests(testDir);
 
         assertEquals(RunResult.Status.COMPILE_FAILED, res.status);
-        assertEquals(1, res.testResults.size());
     }
 
     @Test
-    public void runTestsHasCorrectStatusesWhenAllTestsPass() {
+    public void runTestsCreatesRunResultWithCorrectStatusWhenAllTestsPass() {
         Path testDir = TestUtils.getPath(getClass(), "simple_all_tests_pass");
         RunResult res = plugin.runTests(testDir);
 
         assertEquals(RunResult.Status.PASSED, res.status);
-        for (TestResult tr : res.testResults) {
-            assertTrue(tr.isSuccessful());
-        }
     }
 
     @Test

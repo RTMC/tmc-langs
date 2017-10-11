@@ -18,7 +18,7 @@ import java.util.List;
 
 public class RTestResultParser {
 
-    Path path;
+    private Path path;
     private ObjectMapper mapper;
 
     private static Path RESULT_FILE = Paths.get(".results.json");
@@ -28,7 +28,7 @@ public class RTestResultParser {
         this.mapper = new ObjectMapper();
     }
 
-    RunResult parse() throws IOException {
+    public RunResult parse() throws IOException {
         List<TestResult> testResults = getTestResults();
 
         RunResult.Status status = RunResult.Status.PASSED;
