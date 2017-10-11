@@ -27,26 +27,39 @@ public class RPluginTest {
 
     private RPlugin plugin;
 
+    private Path project1ProjectPath;
+    private Path simpleAllTestsPassProjectPath;
+    private Path simpleSourceCodeErrorProjectPath;
+
     @Before
     public void setUp() {
         plugin = new RPlugin();
+
+        project1ProjectPath = TestUtils.getPath(getClass(),
+                "project1");
+        simpleAllTestsPassProjectPath = TestUtils.getPath(getClass(),
+                "simple_all_tests_pass");
+        simpleSourceCodeErrorProjectPath = TestUtils.getPath(getClass(),
+                "simple_source_code_error");
     }
 
     @After
     public void tearDown() {
-        Path testDir = TestUtils.getPath(getClass(), "project1");
-        File resultsJson = new File(testDir.toAbsolutePath().toString() + "/.results.json");
-        resultsJson.delete();
-        File availablePointsJson = new File(testDir.toAbsolutePath().toString()
-                + "/.available_points.json");
-        availablePointsJson.delete();
+        removeResultsJson(project1ProjectPath);
+        removeAvailablePointsJson(project1ProjectPath);
+        removeResultsJson(simpleAllTestsPassProjectPath);
+        removeResultsJson(simpleSourceCodeErrorProjectPath);
+    }
 
-        testDir = TestUtils.getPath(getClass(), "simple_source_code_error");
-        resultsJson = new File(testDir.toAbsolutePath().toString() + "/.results.json");
+    private void removeResultsJson(Path projectPath) {
+        File resultsJson = new File(projectPath.toAbsolutePath().toString()
+                + "/.results.json");
         resultsJson.delete();
-        
-        testDir = TestUtils.getPath(getClass(), "simple_all_tests_pass");
-        resultsJson = new File(testDir.toAbsolutePath().toString() + "/.results.json");
+    }
+
+    private void removeAvailablePointsJson(Path projectPath) {
+        File resultsJson = new File(projectPath.toAbsolutePath().toString()
+                + "/.available_points.json");
         resultsJson.delete();
     }
 
@@ -84,9 +97,8 @@ public class RPluginTest {
 
     @Test
     public void testScanExercise() {
-        Path testDir = TestUtils.getPath(getClass(), "project1");
-        plugin.scanExercise(testDir, "arithmetics.R");
-        File availablePointsJson = new File(testDir.toAbsolutePath().toString()
+        plugin.scanExercise(project1ProjectPath, "arithmetics.R");
+        File availablePointsJson = new File(project1ProjectPath.toAbsolutePath().toString()
                 + "/.available_points.json");
 
         assertTrue(availablePointsJson.exists());
@@ -94,9 +106,8 @@ public class RPluginTest {
 
     @Test
     public void testScanExerciseInTheWrongPlace() {
-        Path testDir = TestUtils.getPath(getClass(), "project1");
-        plugin.scanExercise(testDir, "ar.R");
-        Path availablePointsJson = testDir.resolve(".available_points.json");
+        plugin.scanExercise(project1ProjectPath, "ar.R");
+        Path availablePointsJson = project1ProjectPath.resolve(".available_points.json");
         ImmutableList<TestDesc> re = null;
         try {
             re = new RExerciseDescParser(availablePointsJson).parse();
@@ -108,8 +119,7 @@ public class RPluginTest {
 
     @Test
     public void runTestsRunResultCorrectForProject1() {
-        Path testDir = TestUtils.getPath(getClass(), "project1");
-        RunResult runRes = plugin.runTests(testDir);
+        RunResult runRes = plugin.runTests(project1ProjectPath);
         ImmutableList<TestResult> re = runRes.testResults;
         assertEquals(re.size(),22);
         assertEquals(re.get(0).getName(),"Addition works");
@@ -135,31 +145,29 @@ public class RPluginTest {
 
         }
 
-        File resultsJson = new File(testDir.toAbsolutePath().toString() + "/.results.json");
+        File resultsJson = new File(project1ProjectPath.toAbsolutePath().toString()
+                + "/.results.json");
 
         assertTrue(resultsJson.exists());
     }
 
     @Test
     public void runTestsCreatesRunResultWithCorrectStatusWhenSomeTestsFail() {
-        Path testDir = TestUtils.getPath(getClass(), "project1");
-        RunResult res = plugin.runTests(testDir);
+        RunResult res = plugin.runTests(project1ProjectPath);
 
         assertEquals(RunResult.Status.TESTS_FAILED, res.status);
     }
 
     @Test
     public void runTestsCreatesRunResultWithCorrectStatusWhenSourceCodeHasError() {
-        Path testDir = TestUtils.getPath(getClass(), "simple_source_code_error");
-        RunResult res = plugin.runTests(testDir);
+        RunResult res = plugin.runTests(simpleSourceCodeErrorProjectPath);
 
         assertEquals(RunResult.Status.COMPILE_FAILED, res.status);
     }
 
     @Test
     public void runTestsCreatesRunResultWithCorrectStatusWhenAllTestsPass() {
-        Path testDir = TestUtils.getPath(getClass(), "simple_all_tests_pass");
-        RunResult res = plugin.runTests(testDir);
+        RunResult res = plugin.runTests(simpleAllTestsPassProjectPath);
 
         assertEquals(RunResult.Status.PASSED, res.status);
     }
