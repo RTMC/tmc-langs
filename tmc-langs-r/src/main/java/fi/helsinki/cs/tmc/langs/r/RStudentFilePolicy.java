@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RStudentFilePolicy extends ConfigurableStudentFilePolicy {
+
     public RStudentFilePolicy(Path configFileParent) {
         super(configFileParent);
     }
@@ -23,3 +24,4 @@ public class RStudentFilePolicy extends ConfigurableStudentFilePolicy {
         return path.startsWith(Paths.get("R"));
     }
 }
+

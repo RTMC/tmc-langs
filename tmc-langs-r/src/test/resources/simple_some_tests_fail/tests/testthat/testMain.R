@@ -17,3 +17,11 @@ test("add works.", c("r1.3", "r1.4"), {
   expect_equal(add(5, 5), 10)
 })
 
+test("ret_false returns true", c("r1.5"), {
+    expect_true(ret_false())
+})
+
+test("ret_true works but there are no points.", NULL, {
+  expect_true(ret_true())
+})
+
