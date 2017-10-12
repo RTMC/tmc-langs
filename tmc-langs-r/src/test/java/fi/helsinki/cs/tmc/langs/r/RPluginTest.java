@@ -63,9 +63,9 @@ public class RPluginTest {
     }
 
     private void removeAvailablePointsJson(Path projectPath) {
-        File resultsJson = new File(projectPath.toAbsolutePath().toString()
+        File availablePointsJson = new File(projectPath.toAbsolutePath().toString()
                 + "/.available_points.json");
-        resultsJson.delete();
+        availablePointsJson.delete();
     }
 
     private void testResultAsExpected(TestResult result, boolean successful, String name,
