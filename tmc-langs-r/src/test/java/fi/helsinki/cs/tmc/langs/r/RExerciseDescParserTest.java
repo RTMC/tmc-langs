@@ -13,8 +13,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 
-
-
 public class RExerciseDescParserTest {
     private ImmutableList<TestDesc> re;
     private Path jsonDir;

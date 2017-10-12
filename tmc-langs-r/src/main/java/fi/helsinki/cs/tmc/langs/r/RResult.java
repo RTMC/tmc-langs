@@ -1,18 +1,12 @@
-
 package fi.helsinki.cs.tmc.langs.r;
 
 import java.util.List;
 
-
 public class RResult {
-    
+
     private String name;
     private List<String> points;
-    
-    public RResult(){
-      
-    }
-    
+
     public String getName() {
         return name;
     }
@@ -28,6 +22,4 @@ public class RResult {
     public void setPoints(List<String> points) {
         this.points = points;
     }
-    
-    
 }

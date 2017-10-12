@@ -1,6 +1,7 @@
 package fi.helsinki.cs.tmc.langs.r;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
+import fi.helsinki.cs.tmc.langs.domain.SpecialLogs;
 import fi.helsinki.cs.tmc.langs.domain.TestResult;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,10 +16,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RTestResultParser {
 
-    Path path;
+    private Path path;
     private ObjectMapper mapper;
 
     private static Path RESULT_FILE = Paths.get(".results.json");
@@ -28,7 +30,15 @@ public class RTestResultParser {
         this.mapper = new ObjectMapper();
     }
 
-    RunResult parse() throws IOException {
+    public RunResult parse() throws IOException {
+        byte[] json = Files.readAllBytes(path.resolve(RESULT_FILE));
+        
+        JsonNode runStatus = mapper.readTree(json).get("runStatus");
+        
+        if (!runStatus.toString().equals("\"success\"")) {
+            return getBacktraceFromCompileError(json);
+        }
+        
         List<TestResult> testResults = getTestResults();
 
         RunResult.Status status = RunResult.Status.PASSED;
@@ -37,35 +47,26 @@ public class RTestResultParser {
                 status = RunResult.Status.TESTS_FAILED;
             }
         }
-        if (!testResults.isEmpty() && testResults.get(0).getName().equals("COMPILATION FAILED")) {
-            status = RunResult.Status.COMPILE_FAILED;
-        }
 
         ImmutableList<TestResult> immutableResults = ImmutableList.copyOf(testResults);
         ImmutableMap<String, byte[]> logs = ImmutableMap.copyOf(new HashMap<String, byte[]>());
         return new RunResult(status, immutableResults, logs);
     }
 
+    private RunResult getBacktraceFromCompileError(byte[] json) throws IOException {
+        Map<String, byte[]> logMap = new HashMap<>();
+        byte[] backtrace = mapper.writeValueAsBytes(mapper.readTree(json).get("backtrace"));
+        logMap.put(SpecialLogs.COMPILER_OUTPUT, backtrace);
+        ImmutableMap<String, byte[]> logs = ImmutableMap.copyOf(logMap);
+        
+        return new RunResult(RunResult.Status.COMPILE_FAILED,
+                ImmutableList.copyOf(new ArrayList<TestResult>()), logs);
+    }
+
     private List<TestResult> getTestResults() throws IOException {
         byte[] json = Files.readAllBytes(path.resolve(RESULT_FILE));
         List<TestResult> results = new ArrayList<>();
 
-        JsonNode runStatus = mapper.readTree(json).get("runStatus");
-        if (!runStatus.toString().equals("\"success\"")) {
-            List<String> backTrace = new ArrayList<>();
-            for (JsonNode line : mapper.readTree(json).get("backtrace")) {
-                backTrace.add(line.asText());
-            }
-        
-            List<String> dummy = new ArrayList();
-            results.add(new TestResult(
-                    "COMPILATION FAILED",
-                    false,
-                    ImmutableList.copyOf(dummy),
-                    "Something wrong with source code",
-                    ImmutableList.copyOf(backTrace)));
-        }
-        
         JsonNode tree = mapper.readTree(json).get("testResults");
         for (JsonNode node : tree) {
             results.add(toTestResult(node));
