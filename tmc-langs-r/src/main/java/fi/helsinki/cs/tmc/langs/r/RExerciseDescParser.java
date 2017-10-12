@@ -12,28 +12,29 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RExerciseDescParser {
-    
+
     private static Path RESULT_FILE = Paths.get(".available_points.json");
-    private static final TypeReference<List<RResult>> MAP_TYPE_REFERENCE =
-            new TypeReference<List<RResult>>() {};
+    private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE =
+            new TypeReference<Map<String, List<String>>>() {};
     private Path path;
     private ObjectMapper mapper;
-    
+
     public RExerciseDescParser(Path path) {
         this.path = path;
         this.mapper = new ObjectMapper();
     }
-    
+
     public ImmutableList<TestDesc> parse() throws IOException {
         List<TestDesc> testDescs = new ArrayList<>();
         byte[] json = Files.readAllBytes(path.resolve(RESULT_FILE));
-        List<RResult> parse = mapper.readValue(json, MAP_TYPE_REFERENCE);
+        Map<String, List<String>> parse = mapper.readValue(json, MAP_TYPE_REFERENCE);
 
-        for (RResult result : parse) {
-            ImmutableList<String> points = ImmutableList.copyOf(result.getPoints());
-            testDescs.add(new TestDesc(result.getName(), points));
+        for (String name : parse.keySet()) {
+            ImmutableList<String> points = ImmutableList.copyOf(parse.get(name));
+            testDescs.add(new TestDesc(name, points));
         }
 
         return ImmutableList.copyOf(testDescs);
