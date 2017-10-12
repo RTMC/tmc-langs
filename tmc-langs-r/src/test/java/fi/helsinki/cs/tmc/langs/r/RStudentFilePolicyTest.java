@@ -22,7 +22,7 @@ public class RStudentFilePolicyTest {
 
     @Before
     public void setUp() {
-        projectPath = TestUtils.getPath(getClass(), "passing");
+        projectPath = TestUtils.getPath(getClass(), "simple_all_tests_pass");
         studentFilePolicy = new RStudentFilePolicy(projectPath);
     }
 
@@ -33,7 +33,8 @@ public class RStudentFilePolicyTest {
         TestUtils.collectPaths(projectPath, studentFiles, studentFilePolicy);
 
         assertEquals(2, studentFiles.size());
-        assertTrue(studentFiles.contains("R" + File.separator + "arithmetics.R"));
+        assertTrue(studentFiles.contains("R" + File.separator + "main.R"));
+        assertTrue(studentFiles.contains("R" + File.separator + "second.R"));
     }
 
     @Test
@@ -45,6 +46,9 @@ public class RStudentFilePolicyTest {
         assertEquals(2, studentFiles.size());
         assertFalse(studentFiles.contains(
                 "test" + File.separatorChar + "testthat"
-                        + File.separatorChar + "testArithmetics.R"));
+                        + File.separatorChar + "testSecond.R"));
+        assertFalse(studentFiles.contains(
+                "test" + File.separatorChar + "testthat"
+                        + File.separatorChar + "testMainR"));
     }
 }
