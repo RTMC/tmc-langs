@@ -1,13 +1,13 @@
 package fi.helsinki.cs.tmc.langs.r;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
+import fi.helsinki.cs.tmc.langs.domain.SpecialLogs;
 import fi.helsinki.cs.tmc.langs.domain.TestResult;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import fi.helsinki.cs.tmc.langs.domain.SpecialLogs;
 
 import java.io.IOException;
 import java.nio.file.Files;
