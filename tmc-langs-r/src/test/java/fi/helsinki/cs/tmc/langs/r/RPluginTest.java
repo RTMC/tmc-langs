@@ -1,5 +1,6 @@
 package fi.helsinki.cs.tmc.langs.r;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +30,7 @@ public class RPluginTest {
 
     private Path project1ProjectPath;
     private Path simpleAllTestsPassProjectPath;
+    private Path simpleSomeTestsFailProjectPath;
     private Path simpleSourceCodeErrorProjectPath;
 
     @Before
@@ -39,6 +41,8 @@ public class RPluginTest {
                 "project1");
         simpleAllTestsPassProjectPath = TestUtils.getPath(getClass(),
                 "simple_all_tests_pass");
+        simpleSomeTestsFailProjectPath = TestUtils.getPath(getClass(),
+                "simple_some_tests_fail");
         simpleSourceCodeErrorProjectPath = TestUtils.getPath(getClass(),
                 "simple_source_code_error");
     }
@@ -48,6 +52,7 @@ public class RPluginTest {
         removeResultsJson(project1ProjectPath);
         removeAvailablePointsJson(project1ProjectPath);
         removeResultsJson(simpleAllTestsPassProjectPath);
+        removeResultsJson(simpleSomeTestsFailProjectPath);
         removeResultsJson(simpleSourceCodeErrorProjectPath);
     }
 
@@ -63,11 +68,17 @@ public class RPluginTest {
         resultsJson.delete();
     }
 
+    private void testResultAsExpected(TestResult result, boolean successful, String name,
+                                      String[] points) {
+        assertEquals(successful, result.isSuccessful());
+        assertEquals(name, result.getName());
+        assertArrayEquals(points, result.points.toArray());
+    }
+
     @Test
     public void testGetTestCommand() {
         String[] command = new String[]{"Rscript"};
         String[] args;
-
         if (SystemUtils.IS_OS_WINDOWS) {
             args = new String[]{"-e", "\"library('tmcRtestrunner');run_tests()\""};
         } else {
@@ -118,44 +129,39 @@ public class RPluginTest {
     }
 
     @Test
-    public void runTestsRunResultCorrectForProject1() {
-        RunResult runRes = plugin.runTests(project1ProjectPath);
-        ImmutableList<TestResult> re = runRes.testResults;
-        assertEquals(re.size(),22);
-        assertEquals(re.get(0).getName(),"Addition works");
-        assertTrue(re.get(1).isSuccessful());
-        assertEquals(re.get(1).getName(),"Multiplication works");
-        assertTrue(re.get(2).isSuccessful());
-        assertEquals(re.get(2).getName(),"Subtraction works");
-        assertTrue(re.get(3).isSuccessful());
-        assertEquals(re.get(3).getName(),"Division works");
-        assertTrue(re.get(4).isSuccessful());
-        assertEquals(re.get(4).getName(), "Test with no points");
-        assertFalse(re.get(5).isSuccessful());
-        assertEquals(re.get(5).getName(), "Dummy test set to fail");
-        assertTrue(re.get(6).isSuccessful());
-        assertEquals(re.get(6).getName(), "Matrix transpose with [[1,2]] works");
-        assertTrue(re.get(7).isSuccessful());
-        assertEquals(re.get(7).getName(), "Matrix transpose with [[1,2],[3,4]] works");
-        assertTrue(re.get(8).isSuccessful());
-        assertEquals(re.get(8).getName(), "Constant string works");
-        for (int i = 1;i <= 13;i++) {
-            assertEquals(re.get(8 + i).getName(), "Exercise " + i + " is correct");
-            assertTrue(re.get(8 + i).isSuccessful());
+    public void runTestsRunResultAsExpectedSimpleAllPass() {
+        RunResult result = plugin.runTests(simpleAllTestsPassProjectPath);
 
-        }
+        assertEquals(RunResult.Status.PASSED, result.status);
 
-        File resultsJson = new File(project1ProjectPath.toAbsolutePath().toString()
-                + "/.results.json");
-
-        assertTrue(resultsJson.exists());
+        ImmutableList<TestResult> results = result.testResults;
+        testResultAsExpected(results.get(0), true,
+                "ret_true works.", new String[]{"r1", "r1.1"});
+        testResultAsExpected(results.get(1), true,
+                "ret_one works.", new String[]{"r1", "r1.2"});
+        testResultAsExpected(results.get(2), true,
+                "add works.", new String[]{"r1", "r1.3", "r1.4"});
+        testResultAsExpected(results.get(3), true,
+                "minus works", new String[]{"r2", "r2.1"});
     }
 
     @Test
-    public void runTestsCreatesRunResultWithCorrectStatusWhenSomeTestsFail() {
-        RunResult res = plugin.runTests(project1ProjectPath);
+    public void runTestsRunResultAsExpectedSimpleSomeFail() {
+        RunResult result = plugin.runTests(simpleSomeTestsFailProjectPath);
 
-        assertEquals(RunResult.Status.TESTS_FAILED, res.status);
+        assertEquals(RunResult.Status.TESTS_FAILED, result.status);
+
+        ImmutableList<TestResult> results = result.testResults;
+        testResultAsExpected(results.get(0), true,
+                "ret_true works.", new String[]{"r1", "r1.1"});
+        testResultAsExpected(results.get(1), true,
+                "ret_one works.", new String[]{"r1", "r1.2"});
+        testResultAsExpected(results.get(2), true,
+                "add works.", new String[]{"r1", "r1.3", "r1.4"});
+        testResultAsExpected(results.get(3), false,
+                "ret_false returns true", new String[]{"r1", "r1.5"});
+        testResultAsExpected(results.get(4), true,
+                "ret_true works but there are no points.", new String[]{"r1"});
     }
 
     @Test
@@ -163,13 +169,6 @@ public class RPluginTest {
         RunResult res = plugin.runTests(simpleSourceCodeErrorProjectPath);
 
         assertEquals(RunResult.Status.COMPILE_FAILED, res.status);
-    }
-
-    @Test
-    public void runTestsCreatesRunResultWithCorrectStatusWhenAllTestsPass() {
-        RunResult res = plugin.runTests(simpleAllTestsPassProjectPath);
-
-        assertEquals(RunResult.Status.PASSED, res.status);
     }
 
     @Test
