@@ -28,7 +28,6 @@ public class RPluginTest {
 
     private RPlugin plugin;
 
-    private Path project1ProjectPath;
     private Path simpleAllTestsPassProjectPath;
     private Path simpleSomeTestsFailProjectPath;
     private Path simpleSourceCodeErrorProjectPath;
@@ -37,8 +36,6 @@ public class RPluginTest {
     public void setUp() {
         plugin = new RPlugin();
 
-        project1ProjectPath = TestUtils.getPath(getClass(),
-                "project1");
         simpleAllTestsPassProjectPath = TestUtils.getPath(getClass(),
                 "simple_all_tests_pass");
         simpleSomeTestsFailProjectPath = TestUtils.getPath(getClass(),
@@ -49,8 +46,7 @@ public class RPluginTest {
 
     @After
     public void tearDown() {
-        removeResultsJson(project1ProjectPath);
-        removeAvailablePointsJson(project1ProjectPath);
+        removeAvailablePointsJson(simpleAllTestsPassProjectPath);
         removeResultsJson(simpleAllTestsPassProjectPath);
         removeResultsJson(simpleSomeTestsFailProjectPath);
         removeResultsJson(simpleSourceCodeErrorProjectPath);
@@ -108,8 +104,8 @@ public class RPluginTest {
 
     @Test
     public void testScanExercise() {
-        plugin.scanExercise(project1ProjectPath, "arithmetics.R");
-        File availablePointsJson = new File(project1ProjectPath.toAbsolutePath().toString()
+        plugin.scanExercise(simpleAllTestsPassProjectPath, "main.R");
+        File availablePointsJson = new File(simpleAllTestsPassProjectPath.toAbsolutePath().toString()
                 + "/.available_points.json");
 
         assertTrue(availablePointsJson.exists());
@@ -117,8 +113,8 @@ public class RPluginTest {
 
     @Test
     public void testScanExerciseInTheWrongPlace() {
-        plugin.scanExercise(project1ProjectPath, "ar.R");
-        Path availablePointsJson = project1ProjectPath.resolve(".available_points.json");
+        plugin.scanExercise(simpleAllTestsPassProjectPath, "ar.R");
+        Path availablePointsJson = simpleAllTestsPassProjectPath.resolve(".available_points.json");
         ImmutableList<TestDesc> re = null;
         try {
             re = new RExerciseDescParser(availablePointsJson).parse();
