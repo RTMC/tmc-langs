@@ -33,23 +33,26 @@ import java.util.Locale;
 
 public final class RPlugin extends AbstractLanguagePlugin {
 
-    // Various static final Path-variables for filepaths
-    // to various folders and files in a R exercise project here
+    /*
+    R folder contains the actual R files used in the
+    project/package. It is automatically included when creating a
+    R package but now when making a regular project in RStudio.
+     */
     private static final Path R_FOLDER_PATH = Paths.get("R");
+
+    /*
+    test/testthat folder contains the unit testing
+    files which use the testThat library for the R project.
+    */
     private static final Path TEST_FOLDER_PATH = Paths.get("tests");
     private static final Path TESTTHAT_FOLDER_PATH = Paths.get("testthat");
     private static final Path TESTTHAT_FILE_PATH = Paths.get("testthat.R");
-    private static final Path DESCRIPTION_PATH = Paths.get("DESCRIPTION");
-    private static final Path RESULT_R_PATH = Paths.get("result.R");
 
     private static final String CANNOT_RUN_TESTS_MESSAGE = "Failed to run tests.";
     private static final String CANNOT_PARSE_TEST_RESULTS_MESSAGE = "Failed to read test results.";
     private static final String CANNOT_SCAN_EXERCISE_MESSAGE = "Failed to scan exercise.";
     private static final String CANNOT_PARSE_EXERCISE_DESCRIPTION_MESSAGE =
             "Failed to parse exercise description.";
-
-    // Various static final String-variables for
-    // error messages related to parsing and running R tests here
 
     private static Logger log = LoggerFactory.getLogger(RPlugin.class);
 
@@ -61,33 +64,15 @@ public final class RPlugin extends AbstractLanguagePlugin {
                 new StudentFileAwareUnzipper());
     }
 
+    /*
+    NOTE: Files.exists does not seem to be able to verify the R and
+    testthat folder's existence if they are empty.
+    */
     @Override
     public boolean isExerciseTypeCorrect(Path path) {
         return Files.exists(path.resolve(R_FOLDER_PATH))
                 || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FOLDER_PATH))
-                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FILE_PATH))
-                || Files.exists(path.resolve(DESCRIPTION_PATH));
-        /*
-        R folder contains the actual R files used in the
-        project/package. It is automatically included when creating a
-        R package but now when making a regular project in RStudio.
-
-        test/testthat folder contains the unit testing
-        files which use the testThat library for the R project.
-
-        DESCRIPTION file contains package information.
-        Included automatically when making a new package, but not
-        included when making a regular project in RStudio.
-
-        .RHistory file contains the history of executed code on
-        the R terminal. Generated after running code on the R
-        terminal for the first time.
-
-        tmc/result.R contains the call to tmcRtestrunner's runTests function.
-
-        NOTE: Files.exists does not seem to be able to verify the R and
-        testthat folder's existence if they are empty.
-         */
+                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FILE_PATH));
     }
 
     @Override
@@ -103,25 +88,27 @@ public final class RPlugin extends AbstractLanguagePlugin {
     @Override
     public Optional<ExerciseDesc> scanExercise(Path path, String exerciseName) {
         ProcessRunner runner = new ProcessRunner(this.getAvailablePointsCommand(), path);
+
         try {
             runner.call();
         } catch (Exception e) {
-            System.out.println(e);
             log.error(CANNOT_SCAN_EXERCISE_MESSAGE, e);
         }
+
         try {
             ImmutableList<TestDesc> testDescs = new RExerciseDescParser(path).parse();
             return Optional.of(new ExerciseDesc(exerciseName, testDescs));
         } catch (IOException e) {
             log.error(CANNOT_PARSE_EXERCISE_DESCRIPTION_MESSAGE, e);
         }
+
         return Optional.absent();
     }
 
     @Override
     public RunResult runTests(Path path) {
-
         ProcessRunner runner = new ProcessRunner(getTestCommand(), path);
+
         try {
             runner.call();
         } catch (Exception e) {
@@ -133,6 +120,7 @@ public final class RPlugin extends AbstractLanguagePlugin {
         } catch (IOException e) {
             log.error(CANNOT_PARSE_TEST_RESULTS_MESSAGE, e);
         }
+
         return null;
     }
 
@@ -142,23 +130,23 @@ public final class RPlugin extends AbstractLanguagePlugin {
     }
 
     public String[] getTestCommand() {
-        String[] command = new String[] {"Rscript"};
+        String[] command = new String[]{"Rscript"};
         String[] args;
         if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[] {"-e", "\"library('tmcRtestrunner');run_tests()\""};
+            args = new String[]{"-e", "\"library('tmcRtestrunner');run_tests()\""};
         } else {
-            args = new String[] {"-e", "library(tmcRtestrunner);run_tests()"};
+            args = new String[]{"-e", "library(tmcRtestrunner);run_tests()"};
         }
         return ArrayUtils.addAll(command, args);
     }
 
     public String[] getAvailablePointsCommand() {
-        String[] command = new String[] {"Rscript"};
+        String[] command = new String[]{"Rscript"};
         String[] args;
         if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[] {"-e", "\"library('tmcRtestrunner');run_available_points()\""};
+            args = new String[]{"-e", "\"library('tmcRtestrunner');run_available_points()\""};
         } else {
-            args = new String[] {"-e", "library(tmcRtestrunner);run_available_points()"};
+            args = new String[]{"-e", "library(tmcRtestrunner);run_available_points()"};
         }
         return ArrayUtils.addAll(command, args);
     }
