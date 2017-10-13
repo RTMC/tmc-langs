@@ -188,14 +188,6 @@ public class RPluginTest {
     }
 
     @Test
-    public void exerciseIsCorrectTypeIfItContainsDescription() {
-        Path testCasesRoot = TestUtils.getPath(getClass(), "recognition_test_cases");
-        Path project = testCasesRoot.resolve("description");
-
-        assertTrue(plugin.isExerciseTypeCorrect(project));
-    }
-
-    @Test
     public void exerciseIsCorrectTypeIfItContainsTestthatFile() {
         Path testCasesRoot = TestUtils.getPath(getClass(), "recognition_test_cases");
         Path project = testCasesRoot.resolve("testthat_folder")
