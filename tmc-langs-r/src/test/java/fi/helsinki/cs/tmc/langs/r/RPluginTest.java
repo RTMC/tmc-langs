@@ -28,28 +28,28 @@ public class RPluginTest {
 
     private RPlugin plugin;
 
-    private Path simpleAllTestsPassProjectPath;
-    private Path simpleSomeTestsFailProjectPath;
-    private Path simpleSourceCodeErrorProjectPath;
+    private Path simpleAllTestsPassProject;
+    private Path simpleSomeTestsFailProject;
+    private Path simpleSourceCodeErrorProject;
 
     @Before
     public void setUp() {
         plugin = new RPlugin();
 
-        simpleAllTestsPassProjectPath = TestUtils.getPath(getClass(),
+        simpleAllTestsPassProject = TestUtils.getPath(getClass(),
                 "simple_all_tests_pass");
-        simpleSomeTestsFailProjectPath = TestUtils.getPath(getClass(),
+        simpleSomeTestsFailProject = TestUtils.getPath(getClass(),
                 "simple_some_tests_fail");
-        simpleSourceCodeErrorProjectPath = TestUtils.getPath(getClass(),
+        simpleSourceCodeErrorProject = TestUtils.getPath(getClass(),
                 "simple_source_code_error");
     }
 
     @After
     public void tearDown() {
-        removeAvailablePointsJson(simpleAllTestsPassProjectPath);
-        removeResultsJson(simpleAllTestsPassProjectPath);
-        removeResultsJson(simpleSomeTestsFailProjectPath);
-        removeResultsJson(simpleSourceCodeErrorProjectPath);
+        removeAvailablePointsJson(simpleAllTestsPassProject);
+        removeResultsJson(simpleAllTestsPassProject);
+        removeResultsJson(simpleSomeTestsFailProject);
+        removeResultsJson(simpleSourceCodeErrorProject);
     }
 
     private void removeResultsJson(Path projectPath) {
@@ -104,8 +104,8 @@ public class RPluginTest {
 
     @Test
     public void testScanExercise() {
-        plugin.scanExercise(simpleAllTestsPassProjectPath, "main.R");
-        File availablePointsJson = new File(simpleAllTestsPassProjectPath.toAbsolutePath().toString()
+        plugin.scanExercise(simpleAllTestsPassProject, "main.R");
+        File availablePointsJson = new File(simpleAllTestsPassProject.toAbsolutePath().toString()
                 + "/.available_points.json");
 
         assertTrue(availablePointsJson.exists());
@@ -113,8 +113,8 @@ public class RPluginTest {
 
     @Test
     public void testScanExerciseInTheWrongPlace() {
-        plugin.scanExercise(simpleAllTestsPassProjectPath, "ar.R");
-        Path availablePointsJson = simpleAllTestsPassProjectPath.resolve(".available_points.json");
+        plugin.scanExercise(simpleAllTestsPassProject, "ar.R");
+        Path availablePointsJson = simpleAllTestsPassProject.resolve(".available_points.json");
         ImmutableList<TestDesc> re = null;
         try {
             re = new RExerciseDescParser(availablePointsJson).parse();
@@ -126,7 +126,7 @@ public class RPluginTest {
 
     @Test
     public void runTestsRunResultAsExpectedSimpleAllPass() {
-        RunResult result = plugin.runTests(simpleAllTestsPassProjectPath);
+        RunResult result = plugin.runTests(simpleAllTestsPassProject);
 
         assertEquals(RunResult.Status.PASSED, result.status);
 
@@ -143,7 +143,7 @@ public class RPluginTest {
 
     @Test
     public void runTestsRunResultAsExpectedSimpleSomeFail() {
-        RunResult result = plugin.runTests(simpleSomeTestsFailProjectPath);
+        RunResult result = plugin.runTests(simpleSomeTestsFailProject);
 
         assertEquals(RunResult.Status.TESTS_FAILED, result.status);
 
@@ -162,7 +162,7 @@ public class RPluginTest {
 
     @Test
     public void runTestsCreatesRunResultWithCorrectStatusWhenSourceCodeHasError() {
-        RunResult res = plugin.runTests(simpleSourceCodeErrorProjectPath);
+        RunResult res = plugin.runTests(simpleSourceCodeErrorProject);
 
         assertEquals(RunResult.Status.COMPILE_FAILED, res.status);
     }
