@@ -32,14 +32,16 @@ public class RTestResultParser {
 
     public RunResult parse() throws IOException {
         byte[] json = Files.readAllBytes(path.resolve(RESULT_FILE));
+        JsonNode rootNode = mapper.readTree(json);
         
-        JsonNode runStatus = mapper.readTree(json).get("runStatus");
+        JsonNode runStatus = rootNode.get("runStatus");
         
         if (!runStatus.toString().equals("\"success\"")) {
-            return getBacktraceFromCompileError(json);
+            return getRunResultForCompileFail(rootNode);
         }
         
-        List<TestResult> testResults = getTestResults();
+        JsonNode testResultsNode = rootNode.get("testResults");
+        List<TestResult> testResults = getTestResults(testResultsNode);
 
         RunResult.Status status = RunResult.Status.PASSED;
         for (TestResult result : testResults) {
@@ -53,9 +55,9 @@ public class RTestResultParser {
         return new RunResult(status, immutableResults, logs);
     }
 
-    private RunResult getBacktraceFromCompileError(byte[] json) throws IOException {
+    private RunResult getRunResultForCompileFail(JsonNode rootNode) throws IOException {
         Map<String, byte[]> logMap = new HashMap<>();
-        byte[] backtrace = mapper.writeValueAsBytes(mapper.readTree(json).get("backtrace"));
+        byte[] backtrace = mapper.writeValueAsBytes(rootNode.get("backtrace"));
         logMap.put(SpecialLogs.COMPILER_OUTPUT, backtrace);
         ImmutableMap<String, byte[]> logs = ImmutableMap.copyOf(logMap);
         
@@ -63,36 +65,34 @@ public class RTestResultParser {
                 ImmutableList.copyOf(new ArrayList<TestResult>()), logs);
     }
 
-    private List<TestResult> getTestResults() throws IOException {
-        byte[] json = Files.readAllBytes(path.resolve(RESULT_FILE));
+    private List<TestResult> getTestResults(JsonNode testResultsNode) {
         List<TestResult> results = new ArrayList<>();
 
-        JsonNode tree = mapper.readTree(json).get("testResults");
-        for (JsonNode node : tree) {
-            results.add(toTestResult(node));
+        for (JsonNode testResultNode : testResultsNode) {
+            results.add(toTestResult(testResultNode));
         }
 
         return results;
     }
     
-    private TestResult toTestResult(JsonNode node) {
+    private TestResult toTestResult(JsonNode testResultNode) {
         List<String> points = new ArrayList<>();
-        for (JsonNode point : node.get("points")) {
+        for (JsonNode point : testResultNode.get("points")) {
             points.add(point.asText());
         }
 
         List<String> backTrace = new ArrayList<>();
-        for (JsonNode line : node.get("backtrace")) {
+        for (JsonNode line : testResultNode.get("backtrace")) {
             backTrace.add(line.asText());
         }
         
-        boolean passed = node.get("status").asText().equals("pass");
+        boolean passed = testResultNode.get("status").asText().equals("pass");
 
         return new TestResult(
-                node.get("name").asText(),
+                testResultNode.get("name").asText(),
                 passed,
                 ImmutableList.copyOf(points),
-                node.get("message").toString(),
+                testResultNode.get("message").toString(),
                 ImmutableList.copyOf(backTrace));
     }
 }
