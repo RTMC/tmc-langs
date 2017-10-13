@@ -48,13 +48,6 @@ public final class RPlugin extends AbstractLanguagePlugin {
     private static final Path TESTTHAT_FOLDER_PATH = Paths.get("testthat");
     private static final Path TESTTHAT_FILE_PATH = Paths.get("testthat.R");
 
-    /*
-    DESCRIPTION file contains package information.
-    Included automatically when making a new package, but not
-    included when making a regular project in RStudio.
-     */
-    private static final Path DESCRIPTION_PATH = Paths.get("DESCRIPTION");
-
     private static final String CANNOT_RUN_TESTS_MESSAGE = "Failed to run tests.";
     private static final String CANNOT_PARSE_TEST_RESULTS_MESSAGE = "Failed to read test results.";
     private static final String CANNOT_SCAN_EXERCISE_MESSAGE = "Failed to scan exercise.";
@@ -79,8 +72,7 @@ public final class RPlugin extends AbstractLanguagePlugin {
     public boolean isExerciseTypeCorrect(Path path) {
         return Files.exists(path.resolve(R_FOLDER_PATH))
                 || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FOLDER_PATH))
-                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FILE_PATH))
-                || Files.exists(path.resolve(DESCRIPTION_PATH));
+                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FILE_PATH));
     }
 
     @Override
