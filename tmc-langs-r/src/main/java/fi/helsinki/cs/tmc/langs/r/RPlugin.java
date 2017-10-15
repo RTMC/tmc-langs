@@ -1,6 +1,5 @@
 package fi.helsinki.cs.tmc.langs.r;
 
-
 import fi.helsinki.cs.tmc.langs.AbstractLanguagePlugin;
 import fi.helsinki.cs.tmc.langs.abstraction.ValidationResult;
 import fi.helsinki.cs.tmc.langs.domain.ExerciseBuilder;
@@ -11,13 +10,10 @@ import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
 import fi.helsinki.cs.tmc.langs.io.sandbox.StudentFileAwareSubmissionProcessor;
 import fi.helsinki.cs.tmc.langs.io.zip.StudentFileAwareUnzipper;
 import fi.helsinki.cs.tmc.langs.io.zip.StudentFileAwareZipper;
-
 import fi.helsinki.cs.tmc.langs.utils.ProcessRunner;
-
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -33,16 +29,16 @@ import java.util.Locale;
 
 public final class RPlugin extends AbstractLanguagePlugin {
 
-    /*
-    R folder contains the actual R files used in the
-    project/package. It is automatically included when creating a
-    R package but now when making a regular project in RStudio.
+    /**
+     * R folder contains the actual R files used in the 
+     * project/package. It is automatically included when creating a
+     * R package but now when making a regular project in RStudio.
      */
     private static final Path R_FOLDER_PATH = Paths.get("R");
 
-    /*
-    test/testthat folder contains the unit testing
-    files which use the testThat library for the R project.
+    /** 
+     * test/testthat folder contains the unit testing 
+     * files which use the testThat library for the R project.
     */
     private static final Path TEST_FOLDER_PATH = Paths.get("tests");
     private static final Path TESTTHAT_FOLDER_PATH = Paths.get("testthat");
@@ -64,9 +60,9 @@ public final class RPlugin extends AbstractLanguagePlugin {
                 new StudentFileAwareUnzipper());
     }
 
-    /*
-    NOTE: Files.exists does not seem to be able to verify the R and
-    testthat folder's existence if they are empty.
+    /**
+     * NOTE: Files.exists does not seem to be able to verify the R and 
+     * testthat folder's existence if they are empty.
     */
     @Override
     public boolean isExerciseTypeCorrect(Path path) {
@@ -153,6 +149,6 @@ public final class RPlugin extends AbstractLanguagePlugin {
 
     @Override
     public void clean(Path path) {
-        // TO DO
+        throw new UnsupportedOperationException();
     }
 }

@@ -2,7 +2,6 @@ package fi.helsinki.cs.tmc.langs.r;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
@@ -12,8 +11,10 @@ import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
 import fi.helsinki.cs.tmc.langs.utils.TestUtils;
 
 import com.google.common.collect.ImmutableList;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -192,7 +193,6 @@ public class RPluginTest {
         File testThatR = new File(project.toAbsolutePath().toString() + "/testthat.R");
         assertTrue(testThatR.exists());
     }
-
 
     @Test
     public void getStudentFilePolicyReturnsRStudentFilePolicy() {

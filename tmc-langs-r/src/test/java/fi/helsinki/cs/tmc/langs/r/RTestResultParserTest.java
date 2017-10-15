@@ -2,7 +2,6 @@ package fi.helsinki.cs.tmc.langs.r;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
 import fi.helsinki.cs.tmc.langs.domain.TestResult;
@@ -17,8 +16,8 @@ import java.nio.file.Path;
 
 public class RTestResultParserTest {
 
-    private Path allPassProjectPath;
-    private Path someFailProjectPath;
+    private final Path allPassProjectPath;
+    private final Path someFailProjectPath;
 
     public RTestResultParserTest() {
         Path jsonsDir = TestUtils.getPath(getClass(), "example_jsons");

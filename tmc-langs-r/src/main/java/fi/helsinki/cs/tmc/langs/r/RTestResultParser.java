@@ -6,6 +6,7 @@ import fi.helsinki.cs.tmc.langs.domain.TestResult;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -20,10 +21,10 @@ import java.util.Map;
 
 public class RTestResultParser {
 
-    private Path path;
-    private ObjectMapper mapper;
+    private final Path path;
+    private final ObjectMapper mapper;
 
-    private static Path RESULT_FILE = Paths.get(".results.json");
+    private static final Path RESULT_FILE = Paths.get(".results.json");
 
     public RTestResultParser(Path path) {
         this.path = path;
