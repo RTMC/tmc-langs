@@ -15,7 +15,9 @@ import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +32,9 @@ public class RPluginTest {
     private Path simpleSomeTestsFailProject;
     private Path simpleSourceCodeErrorProject;
 
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
     @Before
     public void setUp() {
         plugin = new RPlugin();
@@ -43,27 +48,19 @@ public class RPluginTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         removeAvailablePointsJson(simpleAllTestsPassProject);
         removeResultsJson(simpleAllTestsPassProject);
         removeResultsJson(simpleSomeTestsFailProject);
         removeResultsJson(simpleSourceCodeErrorProject);
     }
 
-    private void removeResultsJson(Path projectPath) {
-        try {
-            Files.deleteIfExists(projectPath.resolve(".results.json"));
-        } catch (IOException e) {
-            System.out.println("Something wrong: " + e.getMessage());
-        }
+    private void removeResultsJson(Path projectPath) throws IOException {
+        Files.deleteIfExists(projectPath.resolve(".results.json"));
     }
 
-    private void removeAvailablePointsJson(Path projectPath) {
-        try {
-            Files.deleteIfExists(projectPath.resolve(".available_points.json"));
-        } catch (IOException e) {
-            System.out.println("Something wrong: " + e.getMessage());
-        }
+    private void removeAvailablePointsJson(Path projectPath) throws IOException {
+        Files.deleteIfExists(projectPath.resolve(".available_points.json"));
     }
 
     private void testResultAsExpected(TestResult result, boolean successful, String name,
@@ -84,12 +81,8 @@ public class RPluginTest {
         plugin.scanExercise(simpleAllTestsPassProject, "ar.R");
         Path availablePointsJson = simpleAllTestsPassProject.resolve(".available_points.json");
         ImmutableList<TestDesc> re = null;
-        try {
-            re = new RExerciseDescParser(availablePointsJson).parse();
-        } catch (IOException e) {
-            // Expected outcome
-        }
-        assertTrue(re == null);
+        exception.expect(IOException.class);
+        re = new RExerciseDescParser(availablePointsJson).parse();
     }
 
     @Test

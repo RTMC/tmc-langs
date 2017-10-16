@@ -42,7 +42,6 @@ public final class RPlugin extends AbstractLanguagePlugin {
      */
     private static final Path TEST_FOLDER_PATH = Paths.get("tests");
     private static final Path TESTTHAT_FOLDER_PATH = Paths.get("testthat");
-    private static final Path TESTTHAT_FILE_PATH = Paths.get("testthat.R");
 
     private static final String CANNOT_RUN_TESTS_MESSAGE = "Failed to run tests.";
     private static final String CANNOT_PARSE_TEST_RESULTS_MESSAGE = "Failed to read test results.";
@@ -67,8 +66,7 @@ public final class RPlugin extends AbstractLanguagePlugin {
     @Override
     public boolean isExerciseTypeCorrect(Path path) {
         return Files.exists(path.resolve(R_FOLDER_PATH))
-                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FOLDER_PATH))
-                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FILE_PATH));
+                || Files.exists(path.resolve(TEST_FOLDER_PATH).resolve(TESTTHAT_FOLDER_PATH));
     }
 
     @Override
@@ -109,6 +107,7 @@ public final class RPlugin extends AbstractLanguagePlugin {
             runner.call();
         } catch (Exception e) {
             log.error(CANNOT_RUN_TESTS_MESSAGE, e);
+            // TODO add error logs for RunResult
         }
 
         try {
