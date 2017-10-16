@@ -39,7 +39,7 @@ public final class RPlugin extends AbstractLanguagePlugin {
     /** 
      * test/testthat folder contains the unit testing 
      * files which use the testThat library for the R project.
-    */
+     */
     private static final Path TEST_FOLDER_PATH = Paths.get("tests");
     private static final Path TESTTHAT_FOLDER_PATH = Paths.get("testthat");
     private static final Path TESTTHAT_FILE_PATH = Paths.get("testthat.R");
@@ -63,7 +63,7 @@ public final class RPlugin extends AbstractLanguagePlugin {
     /**
      * NOTE: Files.exists does not seem to be able to verify the R and 
      * testthat folder's existence if they are empty.
-    */
+     */
     @Override
     public boolean isExerciseTypeCorrect(Path path) {
         return Files.exists(path.resolve(R_FOLDER_PATH))
