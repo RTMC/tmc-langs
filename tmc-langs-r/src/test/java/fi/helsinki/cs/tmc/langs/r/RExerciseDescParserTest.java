@@ -1,4 +1,3 @@
-
 package fi.helsinki.cs.tmc.langs.r;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -16,8 +15,8 @@ import java.nio.file.Path;
 
 public class RExerciseDescParserTest {
 
-    private Path simpleAllPassJsonDir;
-    private Path noPointsJsonDir;
+    private final Path simpleAllPassJsonDir;
+    private final Path noPointsJsonDir;
     
     public RExerciseDescParserTest() {
         Path exampleJsonsDir = TestUtils.getPath(getClass(), "example_jsons");

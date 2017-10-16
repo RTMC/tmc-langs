@@ -16,11 +16,11 @@ import java.util.Map;
 
 public class RExerciseDescParser {
 
-    private static Path RESULT_FILE = Paths.get(".available_points.json");
+    private static final Path RESULT_FILE = Paths.get(".available_points.json");
     private static final TypeReference<Map<String, List<String>>> MAP_TYPE_REFERENCE =
             new TypeReference<Map<String, List<String>>>() {};
-    private Path path;
-    private ObjectMapper mapper;
+    private final Path path;
+    private final ObjectMapper mapper;
 
     public RExerciseDescParser(Path path) {
         this.path = path;

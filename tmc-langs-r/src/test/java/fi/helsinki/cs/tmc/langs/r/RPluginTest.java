@@ -2,7 +2,6 @@ package fi.helsinki.cs.tmc.langs.r;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
@@ -12,15 +11,14 @@ import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
 import fi.helsinki.cs.tmc.langs.utils.TestUtils;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.SystemUtils;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -53,15 +51,19 @@ public class RPluginTest {
     }
 
     private void removeResultsJson(Path projectPath) {
-        File resultsJson = new File(projectPath.toAbsolutePath().toString()
-                + "/.results.json");
-        resultsJson.delete();
+        try {
+            Files.deleteIfExists(projectPath.resolve(".results.json"));
+        } catch (IOException e) {
+            System.out.println("Something wrong: " + e.getMessage());
+        }
     }
 
     private void removeAvailablePointsJson(Path projectPath) {
-        File availablePointsJson = new File(projectPath.toAbsolutePath().toString()
-                + "/.available_points.json");
-        availablePointsJson.delete();
+        try {
+            Files.deleteIfExists(projectPath.resolve(".available_points.json"));
+        } catch (IOException e) {
+            System.out.println("Something wrong: " + e.getMessage());
+        }
     }
 
     private void testResultAsExpected(TestResult result, boolean successful, String name,
@@ -72,54 +74,20 @@ public class RPluginTest {
     }
 
     @Test
-    public void testGetTestCommand() {
-        String[] command = new String[]{"Rscript"};
-        String[] args;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[]{"-e", "\"library('tmcRtestrunner');run_tests()\""};
-        } else {
-            args = new String[]{"-e", "library(tmcRtestrunner);run_tests()"};
-        }
-        String[] expectedCommand = ArrayUtils.addAll(command, args);
-        Assert.assertArrayEquals(expectedCommand, plugin.getTestCommand());
-    }
-
-    @Test
-    public void testGetAvailablePointsCommand() {
-        String[] command = new String[]{"Rscript"};
-        String[] args;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            args = new String[]{"-e", "\"library('tmcRtestrunner');run_available_points()\""};
-        } else {
-            args = new String[]{"-e", "library(tmcRtestrunner);run_available_points()"};
-        }
-        String[] expectedCommand = ArrayUtils.addAll(command, args);
-        Assert.assertArrayEquals(expectedCommand, plugin.getAvailablePointsCommand());
-    }
-
-    @Test
-    public void testGetPluginName() {
-        assertEquals("r", plugin.getLanguageName());
-    }
-
-    @Test
     public void testScanExercise() {
         plugin.scanExercise(simpleAllTestsPassProject, "main.R");
-        File availablePointsJson = new File(simpleAllTestsPassProject.toAbsolutePath().toString()
-                + "/.available_points.json");
-
-        assertTrue(availablePointsJson.exists());
+        assertTrue(Files.exists(simpleAllTestsPassProject.resolve(".available_points.json")));
     }
 
     @Test
-    public void testScanExerciseInTheWrongPlace() {
+    public void testScanExerciseInTheWrongPlace() throws IOException {
         plugin.scanExercise(simpleAllTestsPassProject, "ar.R");
         Path availablePointsJson = simpleAllTestsPassProject.resolve(".available_points.json");
         ImmutableList<TestDesc> re = null;
         try {
             re = new RExerciseDescParser(availablePointsJson).parse();
         } catch (IOException e) {
-            System.out.println("Something wrong: " + e.getMessage());
+            // Expected outcome
         }
         assertTrue(re == null);
     }
@@ -189,10 +157,8 @@ public class RPluginTest {
         Path project = testCasesRoot.resolve("testthat_folder")
                                     .resolve("tests");
 
-        File testThatR = new File(project.toAbsolutePath().toString() + "/testthat.R");
-        assertTrue(testThatR.exists());
+        assertTrue(Files.exists(project.resolve("testthat.R")));
     }
-
 
     @Test
     public void getStudentFilePolicyReturnsRStudentFilePolicy() {
