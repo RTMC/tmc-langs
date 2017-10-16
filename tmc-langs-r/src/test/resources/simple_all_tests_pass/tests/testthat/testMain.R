@@ -16,3 +16,4 @@ test("add works.", c("r1.3", "r1.4"), {
   expect_equal(add(0, 0), 0)
   expect_equal(add(5, 5), 10)
 })
+
