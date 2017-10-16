@@ -129,6 +129,15 @@ public class RPluginTest {
     }
 
     @Test
+    public void runTestsReturnsGenericErrorWhenPathDoesNotExist() {
+        Path doesNotExist = TestUtils.getPath(getClass(),
+                "aijoigad0");
+        RunResult res = plugin.runTests(doesNotExist);
+
+        assertEquals(RunResult.Status.GENERIC_ERROR, res.status);
+    }
+
+    @Test
     public void exerciseIsCorrectTypeIfItContainsRFolder() {
         Path testCasesRoot = TestUtils.getPath(getClass(), "recognition_test_cases");
         Path project = testCasesRoot.resolve("R_folder");

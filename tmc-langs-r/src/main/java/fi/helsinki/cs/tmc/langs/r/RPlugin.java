@@ -1,11 +1,9 @@
 package fi.helsinki.cs.tmc.langs.r;
 
+import com.google.common.collect.ImmutableMap;
 import fi.helsinki.cs.tmc.langs.AbstractLanguagePlugin;
 import fi.helsinki.cs.tmc.langs.abstraction.ValidationResult;
-import fi.helsinki.cs.tmc.langs.domain.ExerciseBuilder;
-import fi.helsinki.cs.tmc.langs.domain.ExerciseDesc;
-import fi.helsinki.cs.tmc.langs.domain.RunResult;
-import fi.helsinki.cs.tmc.langs.domain.TestDesc;
+import fi.helsinki.cs.tmc.langs.domain.*;
 import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
 import fi.helsinki.cs.tmc.langs.io.sandbox.StudentFileAwareSubmissionProcessor;
 import fi.helsinki.cs.tmc.langs.io.zip.StudentFileAwareUnzipper;
@@ -25,7 +23,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public final class RPlugin extends AbstractLanguagePlugin {
 
@@ -108,15 +109,22 @@ public final class RPlugin extends AbstractLanguagePlugin {
         } catch (Exception e) {
             log.error(CANNOT_RUN_TESTS_MESSAGE, e);
             // TODO add error logs for RunResult
+            return getGenericErrorRunResult(new HashMap<String, byte[]>());
         }
 
         try {
             return new RTestResultParser(path).parse();
         } catch (IOException e) {
             log.error(CANNOT_PARSE_TEST_RESULTS_MESSAGE, e);
+            // TODO add error logs for RunResult
+            return getGenericErrorRunResult(new HashMap<String, byte[]>());
         }
+    }
 
-        return null;
+    private RunResult getGenericErrorRunResult(Map<String, byte[]> logMap) {
+        ImmutableMap<String, byte[]> logs = ImmutableMap.copyOf(logMap);
+        return new RunResult(RunResult.Status.GENERIC_ERROR,
+                ImmutableList.copyOf(new ArrayList<TestResult>()), logs);
     }
 
     @Override
