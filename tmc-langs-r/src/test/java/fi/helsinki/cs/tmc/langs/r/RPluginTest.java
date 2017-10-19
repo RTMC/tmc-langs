@@ -1,19 +1,16 @@
 package fi.helsinki.cs.tmc.langs.r;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
 import fi.helsinki.cs.tmc.langs.domain.TestDesc;
-import fi.helsinki.cs.tmc.langs.domain.TestResult;
 import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
 import fi.helsinki.cs.tmc.langs.utils.TestUtils;
 
 import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,13 +60,6 @@ public class RPluginTest {
         Files.deleteIfExists(projectPath.resolve(".available_points.json"));
     }
 
-    private void testResultAsExpected(TestResult result, boolean successful, String name,
-                                      String[] points) {
-        assertEquals(successful, result.isSuccessful());
-        assertEquals(name, result.getName());
-        assertArrayEquals(points, result.points.toArray());
-    }
-
     @Test
     public void testScanExercise() {
         plugin.scanExercise(simpleAllTestsPassProject, "main.R");
@@ -86,39 +76,17 @@ public class RPluginTest {
     }
 
     @Test
-    public void runTestsRunResultAsExpectedSimpleAllPass() {
+    public void runTestsRunResultWithCorrectStatusForSimpleAllPass() {
         RunResult result = plugin.runTests(simpleAllTestsPassProject);
 
         assertEquals(RunResult.Status.PASSED, result.status);
-
-        ImmutableList<TestResult> results = result.testResults;
-        testResultAsExpected(results.get(0), true,
-                "ret_true works.", new String[]{"r1", "r1.1"});
-        testResultAsExpected(results.get(1), true,
-                "ret_one works.", new String[]{"r1", "r1.2"});
-        testResultAsExpected(results.get(2), true,
-                "add works.", new String[]{"r1", "r1.3", "r1.4"});
-        testResultAsExpected(results.get(3), true,
-                "minus works", new String[]{"r2", "r2.1"});
     }
 
     @Test
-    public void runTestsRunResultAsExpectedSimpleSomeFail() {
+    public void runTestsRunResultWithCorrectStatusForSimpleSomeFail() {
         RunResult result = plugin.runTests(simpleSomeTestsFailProject);
 
         assertEquals(RunResult.Status.TESTS_FAILED, result.status);
-
-        ImmutableList<TestResult> results = result.testResults;
-        testResultAsExpected(results.get(0), true,
-                "ret_true works.", new String[]{"r1", "r1.1"});
-        testResultAsExpected(results.get(1), true,
-                "ret_one works.", new String[]{"r1", "r1.2"});
-        testResultAsExpected(results.get(2), true,
-                "add works.", new String[]{"r1", "r1.3", "r1.4"});
-        testResultAsExpected(results.get(3), false,
-                "ret_false returns true", new String[]{"r1", "r1.5"});
-        testResultAsExpected(results.get(4), true,
-                "ret_true works but there are no points.", new String[]{"r1"});
     }
 
     @Test
