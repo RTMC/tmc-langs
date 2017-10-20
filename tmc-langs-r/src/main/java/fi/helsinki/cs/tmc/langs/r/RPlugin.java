@@ -1,10 +1,13 @@
 package fi.helsinki.cs.tmc.langs.r;
 
 import fi.helsinki.cs.tmc.langs.AbstractLanguagePlugin;
+import fi.helsinki.cs.tmc.langs.abstraction.Strategy;
+import fi.helsinki.cs.tmc.langs.abstraction.ValidationError;
 import fi.helsinki.cs.tmc.langs.abstraction.ValidationResult;
 import fi.helsinki.cs.tmc.langs.domain.ExerciseBuilder;
 import fi.helsinki.cs.tmc.langs.domain.ExerciseDesc;
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
+import fi.helsinki.cs.tmc.langs.domain.SpecialLogs;
 import fi.helsinki.cs.tmc.langs.domain.TestDesc;
 import fi.helsinki.cs.tmc.langs.domain.TestResult;
 import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
@@ -16,19 +19,23 @@ import fi.helsinki.cs.tmc.langs.utils.ProcessRunner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -107,33 +114,46 @@ public final class RPlugin extends AbstractLanguagePlugin {
     @Override
     public RunResult runTests(Path path) {
         ProcessRunner runner = new ProcessRunner(getTestCommand(), path);
-
+ 
         try {
             runner.call();
         } catch (Exception e) {
             log.error(CANNOT_RUN_TESTS_MESSAGE, e);
-            // TODO add error logs for RunResult
-            return getGenericErrorRunResult(new HashMap<String, byte[]>());
+            return getGenericErrorRunResult(e);
         }
 
         try {
             return new RTestResultParser(path).parse();
         } catch (IOException e) {
             log.error(CANNOT_PARSE_TEST_RESULTS_MESSAGE, e);
-            // TODO add error logs for RunResult
-            return getGenericErrorRunResult(new HashMap<String, byte[]>());
+            return getGenericErrorRunResult(e);
         }
     }
 
-    private RunResult getGenericErrorRunResult(Map<String, byte[]> logMap) {
+    private RunResult getGenericErrorRunResult(Throwable exception) {
+        Map<String, byte[]> logMap = new HashMap<>();
+        byte[] stackTraceAsByteArray = ExceptionUtils.getStackTrace(exception).getBytes();
+        logMap.put(SpecialLogs.GENERIC_ERROR_MESSAGE, stackTraceAsByteArray);
+        
         ImmutableMap<String, byte[]> logs = ImmutableMap.copyOf(logMap);
+        
         return new RunResult(RunResult.Status.GENERIC_ERROR,
                 ImmutableList.copyOf(new ArrayList<TestResult>()), logs);
     }
 
     @Override
     public ValidationResult checkCodeStyle(Path path, Locale messageLocale) {
-        return null;
+        return new ValidationResult() {
+            @Override
+            public Strategy getStrategy() {
+                return Strategy.DISABLED;
+            }
+
+            @Override
+            public Map<File, List<ValidationError>> getValidationErrors() {
+                return Maps.newHashMap();
+            }
+        };
     }
 
     public String[] getTestCommand() {
@@ -158,8 +178,10 @@ public final class RPlugin extends AbstractLanguagePlugin {
         return ArrayUtils.addAll(command, args);
     }
 
+    /**
+     * No operation for now. To be possibly implemented later: remove .Rdata, .Rhistory etc
+     */
     @Override
     public void clean(Path path) {
-        throw new UnsupportedOperationException();
     }
 }

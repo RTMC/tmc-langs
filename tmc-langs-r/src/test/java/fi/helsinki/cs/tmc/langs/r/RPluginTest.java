@@ -4,11 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import fi.helsinki.cs.tmc.langs.domain.RunResult;
-import fi.helsinki.cs.tmc.langs.domain.TestDesc;
+import fi.helsinki.cs.tmc.langs.domain.SpecialLogs;
 import fi.helsinki.cs.tmc.langs.io.StudentFilePolicy;
 import fi.helsinki.cs.tmc.langs.utils.TestUtils;
-
-import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,9 +68,9 @@ public class RPluginTest {
     public void testScanExerciseInTheWrongPlace() throws IOException {
         plugin.scanExercise(simpleAllTestsPassProject, "ar.R");
         Path availablePointsJson = simpleAllTestsPassProject.resolve(".available_points.json");
-        ImmutableList<TestDesc> re = null;
+        
         exception.expect(IOException.class);
-        re = new RExerciseDescParser(availablePointsJson).parse();
+        new RExerciseDescParser(availablePointsJson).parse();
     }
 
     @Test
@@ -105,6 +103,17 @@ public class RPluginTest {
         assertEquals(RunResult.Status.GENERIC_ERROR, res.status);
     }
 
+    @Test
+    public void runTestsReturnsStackTraceWhenPathDoesNotExist() {
+        Path doesNotExist = TestUtils.getPath(getClass(),
+                "aijoigad0");
+        RunResult res = plugin.runTests(doesNotExist);
+        
+        String stackTrace = new String(res.logs.get(SpecialLogs.GENERIC_ERROR_MESSAGE));
+        assertEquals("java.lang.NullPointerException", stackTrace.split("\n")[0]);
+        assertTrue(stackTrace.split("\n").length > 1);
+    }
+    
     @Test
     public void exerciseIsCorrectTypeIfItContainsRFolder() {
         Path testCasesRoot = TestUtils.getPath(getClass(), "recognition_test_cases");
