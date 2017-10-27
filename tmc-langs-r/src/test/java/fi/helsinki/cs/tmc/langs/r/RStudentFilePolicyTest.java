@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RStudentFilePolicyTest {
 
     @Test
     public void testFilesInRDirectoryAreStudentFiles() throws IOException {
-        List<String> studentFiles = new ArrayList();
+        List<String> studentFiles = new ArrayList<>();
 
         TestUtils.collectPaths(projectPath, studentFiles, studentFilePolicy);
 
@@ -44,11 +45,26 @@ public class RStudentFilePolicyTest {
         TestUtils.collectPaths(projectPath, studentFiles, studentFilePolicy);
 
         assertEquals(2, studentFiles.size());
+        assertTrue(Files.exists(
+                projectPath.resolve("tests").resolve("testthat").resolve("testMain.R")));
+        assertTrue(Files.exists(
+                projectPath.resolve("tests").resolve("testthat").resolve("testSecond.R")));
         assertFalse(studentFiles.contains(
                 "test" + File.separatorChar + "testthat"
                         + File.separatorChar + "testSecond.R"));
         assertFalse(studentFiles.contains(
                 "test" + File.separatorChar + "testthat"
                         + File.separatorChar + "testMainR"));
+    }
+
+    @Test
+    public void testFilesInADirectoryWhoseNameBeginsWithRAreNotStudentFiles() throws IOException {
+        List<String> studentFiles = new ArrayList<>();
+
+        TestUtils.collectPaths(projectPath, studentFiles, studentFilePolicy);
+
+        assertEquals(2, studentFiles.size());
+        assertTrue(Files.exists(projectPath.resolve("R2").resolve("third.R")));
+        assertFalse(studentFiles.contains("R2" + File.separator + "third.R"));
     }
 }

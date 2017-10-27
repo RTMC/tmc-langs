@@ -24,3 +24,4 @@ test("ret_false returns true", c("r1.5"), {
 test("ret_true works but there are no points.", NULL, {
   expect_true(ret_true())
 })
+
